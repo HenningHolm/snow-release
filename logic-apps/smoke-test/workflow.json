@@ -73,6 +73,80 @@
                         "SUCCEEDED"
                     ]
                 }
+            },
+            "HTTP_Check_Autoring_Stats": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@concat(parameters('BaseURL'), '/', parameters('branch'), '/authoring-stats')",
+                    "method": "GET"
+                },
+                "runAfter": {
+                    "Check_Dependency_and_DailyBuild": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Check_Authoring_Stats": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "",
+                                ""
+                            ]
+                        }
+                    ]
+                },
+                "actions": {},
+                "else": {
+                    "actions": {
+                        "HTTP_Rollback": {
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
+                                "method": "POST",
+                                "body": {
+                                    "type": "SNAPSHOT",
+                                    "branchPath": "MAIN/SNOMEDCT-NO",
+                                    "createCodeSystemVersion": true
+                                }
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP_Check_Autoring_Stats": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Initialize_new_import_job": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@concat(parameters('BaseURL'), '/', parameters('branch'), '/authoring-stats')",
+                    "method": "GET"
+                },
+                "runAfter": {
+                    "Check_Authoring_Stats": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
             }
         },
         "contentVersion": "1.0.0.0",

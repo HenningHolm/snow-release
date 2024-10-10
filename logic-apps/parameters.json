@@ -5,7 +5,7 @@
   },
   "branch": {
     "type": "String",
-    "value": "MAIN-SNOMEDCT/NO"
+    "value": "MAIN-SNOMEDCT-NO"
   },
   "shortName": {
     "type": "String",
