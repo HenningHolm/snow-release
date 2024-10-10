@@ -1,7 +1,80 @@
 {
     "definition": {
         "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-        "actions": {},
+        "actions": {
+            "HTTP_-_Deactivate_DailyBuild": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'))",
+                    "method": "PUT",
+                    "body": {
+                        "countryCode": "no",
+                        "dailyBuildAvailable": false,
+                        "defaultLanguageCode": "no",
+                        "name": "Norwegian Edition",
+                        "owner": "The Norwegian Directorate of Health"
+                    }
+                },
+                "runAfter": {},
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "HTTP_-_DailyBuild_Status": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'))",
+                    "method": "GET"
+                },
+                "runAfter": {
+                    "HTTP_-_Deactivate_DailyBuild": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Check_Dependency_and_DailyBuild": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')",
+                                ""
+                            ]
+                        }
+                    ]
+                },
+                "actions": {},
+                "else": {
+                    "actions": {
+                        "HTTP_-_Rollback": {
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
+                                "method": "POST"
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "HTTP_-_DailyBuild_Status": [
+                        "SUCCEEDED"
+                    ]
+                }
+            }
+        },
         "contentVersion": "1.0.0.0",
         "outputs": {},
         "triggers": {
