@@ -1,0 +1,14 @@
+{
+  "BaseURL": {
+    "type": "String",
+    "value": "http://localhost:7258/api"
+  },
+  "branch": {
+    "type": "String",
+    "value": "MAIN-SNOMEDCT/NO"
+  },
+  "shortName": {
+    "type": "String",
+    "value": "SNOMEDCT-NO"
+  }
+}
