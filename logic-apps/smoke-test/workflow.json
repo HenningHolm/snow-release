@@ -7,6 +7,9 @@
                 "inputs": {
                     "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'))",
                     "method": "PUT",
+                    "headers": {
+                        "Authorization": "Basic ZGV2OmRldg=="
+                    },
                     "body": {
                         "countryCode": "no",
                         "dailyBuildAvailable": false,
@@ -46,7 +49,7 @@
                         {
                             "equals": [
                                 "@body('HTTP_-_DailyBuild_Status')",
-                                ""
+                                0
                             ]
                         }
                     ]
@@ -58,7 +61,15 @@
                             "type": "Http",
                             "inputs": {
                                 "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
-                                "method": "POST"
+                                "method": "POST",
+                                "headers": {
+                                    "Authorization": "Basic ZGV2OmRldg=="
+                                },
+                                "body": {
+                                    "type": "SNAPSHOT",
+                                    "branchPath": "MAIN/SNOMEDCT-NO",
+                                    "createCodeSystemVersion": true
+                                }
                             },
                             "runtimeConfiguration": {
                                 "contentTransfer": {
@@ -97,8 +108,8 @@
                     "and": [
                         {
                             "equals": [
-                                "",
-                                ""
+                                "@body('HTTP_Check_Autoring_Stats')['newConceptsCount']",
+                                0
                             ]
                         }
                     ]
@@ -131,11 +142,14 @@
                     ]
                 }
             },
-            "Http_-_Initialize_new_import_job": {
+            "HTTP_-_Initialize_new_import_job": {
                 "type": "Http",
                 "inputs": {
                     "uri": "@concat(parameters('BaseURL'), '/imports')",
                     "method": "POST",
+                    "headers": {
+                        "Authorization": "Basic ZGV2OmRldg=="
+                    },
                     "body": {
                         "branchPath": "MAIN/SNOMEDCT-NO",
                         "createCodeSystemVersion": true,
@@ -153,14 +167,14 @@
                     }
                 }
             },
-            "Http_-_Get_ImportId": {
+            "HTTP_-_Get_Import_Status": {
                 "type": "Http",
                 "inputs": {
-                    "uri": "@concat(parameters('BaseURL'), '/imports/', body('Http_-_Initialize_new_import_job')?['importId'])",
+                    "uri": "@outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location']",
                     "method": "GET"
                 },
                 "runAfter": {
-                    "Http_-_Initialize_new_import_job": [
+                    "HTTP_-_Initialize_new_import_job": [
                         "SUCCEEDED"
                     ]
                 },
@@ -176,7 +190,7 @@
                     "and": [
                         {
                             "equals": [
-                                "@body('Http_-_Get_ImportId')['status']",
+                                "@body('HTTP_-_Get_Import_Status')['status']",
                                 "WAITING_FOR_FILE"
                             ]
                         }
@@ -200,7 +214,46 @@
                     "actions": {}
                 },
                 "runAfter": {
-                    "Http_-_Get_ImportId": [
+                    "HTTP_-_Get_Import_Status": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "HTTP_-_Get_Import_Status_After_Import": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location']",
+                    "method": "GET"
+                },
+                "runAfter": {
+                    "Condition": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Condition_": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@body('HTTP_-_Get_Import_Status_After_Import')['status']",
+                                "COMPLETED"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {},
+                "else": {
+                    "actions": {}
+                },
+                "runAfter": {
+                    "HTTP_-_Get_Import_Status_After_Import": [
                         "SUCCEEDED"
                     ]
                 }

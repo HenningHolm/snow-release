@@ -1,11 +1,11 @@
 {
   "BaseURL": {
     "type": "String",
-    "value": "http://localhost:7258/api"
+    "value": "http://localhost/snowstorm/snomed-ct"
   },
   "branch": {
     "type": "String",
-    "value": "MAIN-SNOMEDCT-NO"
+    "value": "MAIN/SNOMEDCT-NO"
   },
   "shortName": {
     "type": "String",
