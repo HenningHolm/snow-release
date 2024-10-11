@@ -131,11 +131,16 @@
                     ]
                 }
             },
-            "Initialize_new_import_job": {
+            "Http_-_Initialize_new_import_job": {
                 "type": "Http",
                 "inputs": {
-                    "uri": "@concat(parameters('BaseURL'), '/', parameters('branch'), '/authoring-stats')",
-                    "method": "GET"
+                    "uri": "@concat(parameters('BaseURL'), '/imports')",
+                    "method": "POST",
+                    "body": {
+                        "branchPath": "MAIN/SNOMEDCT-NO",
+                        "createCodeSystemVersion": true,
+                        "type": "SNAPSHOT"
+                    }
                 },
                 "runAfter": {
                     "Check_Authoring_Stats": [
@@ -146,6 +151,58 @@
                     "contentTransfer": {
                         "transferMode": "Chunked"
                     }
+                }
+            },
+            "Http_-_Get_ImportId": {
+                "type": "Http",
+                "inputs": {
+                    "uri": "@concat(parameters('BaseURL'), '/imports/', body('Http_-_Initialize_new_import_job')?['importId'])",
+                    "method": "GET"
+                },
+                "runAfter": {
+                    "Http_-_Initialize_new_import_job": [
+                        "SUCCEEDED"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "contentTransfer": {
+                        "transferMode": "Chunked"
+                    }
+                }
+            },
+            "Condition": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@body('Http_-_Get_ImportId')['status']",
+                                "WAITING_FOR_FILE"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "HTTP_-_Get_Bobfile": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "https://snowmedtestfiler.blob.core.windows.net/filestestrelease/SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip",
+                            "method": "GET"
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {}
+                },
+                "runAfter": {
+                    "Http_-_Get_ImportId": [
+                        "SUCCEEDED"
+                    ]
                 }
             }
         },
