@@ -1,0 +1,4 @@
+Stopp docker: docker compose down
+Slett xxx_elastic volume fra docker desktop
+kjør ./scripts/linux-restore-snapshot.sh --name withdailybuild
+kjør docker compose up
