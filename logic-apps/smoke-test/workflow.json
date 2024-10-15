@@ -197,11 +197,38 @@
                     ]
                 },
                 "actions": {
-                    "HTTP_-_Get_Bobfile": {
+                    "Read_blob_content": {
+                        "type": "ServiceProvider",
+                        "inputs": {
+                            "parameters": {
+                                "containerName": "filestestrelease",
+                                "blobName": "SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip"
+                            },
+                            "serviceProviderConfiguration": {
+                                "connectionName": "AzureBlob",
+                                "operationId": "readBlob",
+                                "serviceProviderId": "/serviceProviders/AzureBlob"
+                            }
+                        }
+                    },
+                    "HTTP_-_Upload_file": {
                         "type": "Http",
                         "inputs": {
-                            "uri": "https://snowmedtestfiler.blob.core.windows.net/filestestrelease/SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip",
-                            "method": "GET"
+                            "uri": "@concat(outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location'], '/archive')",
+                            "method": "POST",
+                            "headers": {
+                                "Accept": "*/*",
+                                "Accept-Encoding": "gzip, deflate, br",
+                                "Connection": "keep-alive",
+                                "Authorization": "Basic ZGV2OmRldg==",
+                                "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
+                            },
+                            "body": "----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip\"\r\nContent-Type: application/x-zip-compressed\r\n\r\n@{body('Read_blob_content')?['content']}\r\n----WebKitFormBoundary7MA4YWxkTrZu0gW--"
+                        },
+                        "runAfter": {
+                            "Read_blob_content": [
+                                "SUCCEEDED"
+                            ]
                         },
                         "runtimeConfiguration": {
                             "contentTransfer": {
