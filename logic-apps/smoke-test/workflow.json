@@ -226,7 +226,41 @@
                             "body": "----WebKitFormBoundary7MA4YWxkTrZu0gW\r\nContent-Disposition: form-data; name=\"file\"; filename=\"SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip\"\r\nContent-Type: application/x-zip-compressed\r\n\r\n@{body('Read_blob_content')?['content']}\r\n----WebKitFormBoundary7MA4YWxkTrZu0gW--"
                         },
                         "runAfter": {
+                            "HTTP_-_Random_middelstep_Call": [
+                                "SUCCEEDED"
+                            ]
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    },
+                    "HTTP_-_get_blob": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "https://snowmedtestfiler.blob.core.windows.net/filestestrelease/SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip",
+                            "method": "GET"
+                        },
+                        "runAfter": {
                             "Read_blob_content": [
+                                "SUCCEEDED"
+                            ]
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    },
+                    "HTTP_-_Random_middelstep_Call": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "https://www.vg.no",
+                            "method": "GET"
+                        },
+                        "runAfter": {
+                            "HTTP_-_get_blob": [
                                 "SUCCEEDED"
                             ]
                         },
