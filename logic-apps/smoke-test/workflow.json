@@ -214,7 +214,7 @@
                     "HTTP_-_Upload_file": {
                         "type": "Http",
                         "inputs": {
-                            "uri": "@concat(outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location'], '/archive')",
+                            "uri": "http://localhost:7258/api/imports/91e3a233-bd7c-4169-96da-68a27b5bbc0b/archive",
                             "method": "POST",
                             "headers": {
                                 "Accept": "*/*",
