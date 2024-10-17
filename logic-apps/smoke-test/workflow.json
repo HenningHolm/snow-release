@@ -238,57 +238,14 @@
                             }
                         },
                         "runAfter": {
-                            "HTTP_-_Random_middelstep_Call": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "HTTP_-_get_blob": {
-                        "type": "Http",
-                        "inputs": {
-                            "uri": "https://snowmedtestfiler.blob.core.windows.net/filestestrelease/SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip",
-                            "method": "GET"
-                        },
-                        "runAfter": {
-                            "Compose_Base64_Content": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "HTTP_-_Random_middelstep_Call": {
-                        "type": "Http",
-                        "inputs": {
-                            "uri": "https://www.vg.no",
-                            "method": "GET"
-                        },
-                        "runAfter": {
-                            "HTTP_-_get_blob": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "Compose_Base64_Content": {
-                        "type": "Compose",
-                        "inputs": "@body('Read_blob_content')?['content']",
-                        "runAfter": {
                             "Read_blob_content": [
                                 "SUCCEEDED"
                             ]
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
                         }
                     }
                 },
