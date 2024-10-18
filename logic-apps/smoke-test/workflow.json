@@ -48,36 +48,72 @@
                     "and": [
                         {
                             "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')",
+                                "@body('HTTP_-_DailyBuild_Status')['newConseptCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['inactivatedConceptsCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['reacitvatedConceptsCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['changedFsnCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['inactivatedSynonymsCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['newSynonymsForExistingConceptsCount']",
+                                0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_-_DailyBuild_Status')['reactivatedSynonymsCount']",
                                 0
                             ]
                         }
                     ]
                 },
-                "actions": {},
-                "else": {
-                    "actions": {
-                        "HTTP_-_Rollback": {
-                            "type": "Http",
-                            "inputs": {
-                                "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
-                                "method": "POST",
-                                "headers": {
-                                    "Authorization": "Basic ZGV2OmRldg=="
-                                },
-                                "body": {
-                                    "type": "SNAPSHOT",
-                                    "branchPath": "MAIN/SNOMEDCT-NO",
-                                    "createCodeSystemVersion": true
-                                }
+                "actions": {
+                    "HTTP_-_Rollback": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
+                            "method": "POST",
+                            "headers": {
+                                "Authorization": "Basic ZGV2OmRldg=="
                             },
-                            "runtimeConfiguration": {
-                                "contentTransfer": {
-                                    "transferMode": "Chunked"
-                                }
+                            "body": {
+                                "type": "SNAPSHOT",
+                                "branchPath": "MAIN/SNOMEDCT-NO",
+                                "createCodeSystemVersion": true
+                            }
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
                             }
                         }
                     }
+                },
+                "else": {
+                    "actions": {}
                 },
                 "runAfter": {
                     "HTTP_-_DailyBuild_Status": [
@@ -85,7 +121,7 @@
                     ]
                 }
             },
-            "HTTP_Check_Autoring_Stats": {
+            "HTTP_Get_Authoring_Stats": {
                 "type": "Http",
                 "inputs": {
                     "uri": "@concat(parameters('BaseURL'), '/', parameters('branch'), '/authoring-stats')",
@@ -108,8 +144,38 @@
                     "and": [
                         {
                             "equals": [
-                                "@body('HTTP_Check_Autoring_Stats')['newConceptsCount']",
+                                "@body('HTTP_Get_Authoring_Stats')['newConceptsCount']",
                                 0
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_Get_Authoring_Stats')['inactivatedConceptsCount']",
+                                ""
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_Get_Authoring_Stats')['inactivatedConceptsCount']",
+                                ""
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_Get_Authoring_Stats')['changedFsnCount']",
+                                ""
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_Get_Authoring_Stats')['newSynonymsForExistingConceptsCount']",
+                                ""
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@body('HTTP_Get_Authoring_Stats')['reactivatedSynonymsCount']",
+                                ""
                             ]
                         }
                     ]
@@ -137,7 +203,7 @@
                     }
                 },
                 "runAfter": {
-                    "HTTP_Check_Autoring_Stats": [
+                    "HTTP_Get_Authoring_Stats": [
                         "SUCCEEDED"
                     ]
                 }
@@ -238,57 +304,14 @@
                             }
                         },
                         "runAfter": {
-                            "HTTP_-_Random_middelstep_Call": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "HTTP_-_get_blob": {
-                        "type": "Http",
-                        "inputs": {
-                            "uri": "https://snowmedtestfiler.blob.core.windows.net/filestestrelease/SnomedCT_ManagedServiceNO_PRODUCTION_NO1000202_20240915T120000Z.zip",
-                            "method": "GET"
-                        },
-                        "runAfter": {
-                            "Compose_Base64_Content": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "HTTP_-_Random_middelstep_Call": {
-                        "type": "Http",
-                        "inputs": {
-                            "uri": "https://www.vg.no",
-                            "method": "GET"
-                        },
-                        "runAfter": {
-                            "HTTP_-_get_blob": [
-                                "SUCCEEDED"
-                            ]
-                        },
-                        "runtimeConfiguration": {
-                            "contentTransfer": {
-                                "transferMode": "Chunked"
-                            }
-                        }
-                    },
-                    "Compose_Base64_Content": {
-                        "type": "Compose",
-                        "inputs": "@body('Read_blob_content')?['content']",
-                        "runAfter": {
                             "Read_blob_content": [
                                 "SUCCEEDED"
                             ]
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
                         }
                     }
                 },
@@ -301,24 +324,7 @@
                     ]
                 }
             },
-            "HTTP_-_Get_Import_Status_After_Import": {
-                "type": "Http",
-                "inputs": {
-                    "uri": "@outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location']",
-                    "method": "GET"
-                },
-                "runAfter": {
-                    "Condition": [
-                        "SUCCEEDED"
-                    ]
-                },
-                "runtimeConfiguration": {
-                    "contentTransfer": {
-                        "transferMode": "Chunked"
-                    }
-                }
-            },
-            "Condition_": {
+            "Check_if_Import_is_completed": {
                 "type": "If",
                 "expression": {
                     "and": [
@@ -330,12 +336,143 @@
                         }
                     ]
                 },
-                "actions": {},
+                "actions": {
+                    "Notification__-_Import_successfully_completed": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "referenceName": "teams"
+                                }
+                            },
+                            "method": "post",
+                            "body": {
+                                "recipient": "19:515169421c1f44bb82e8af9322128bfc@thread.v2",
+                                "messageBody": "<p class=\"editor-paragraph\">Smoketest : Import Successfully completed</p>"
+                            },
+                            "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Group chat')}"
+                        }
+                    }
+                },
                 "else": {
-                    "actions": {}
+                    "actions": {
+                        "Check_if_failed": {
+                            "type": "If",
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@body('HTTP_-_Get_Import_Status_After_Import')['status']",
+                                            "FAILED"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "actions": {
+                                "Notification_-_Import_failed": {
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "host": {
+                                            "connection": {
+                                                "referenceName": "teams"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "body": {
+                                            "recipient": "19:515169421c1f44bb82e8af9322128bfc@thread.v2",
+                                            "messageBody": "<p class=\"editor-paragraph\">Smoketest : Rf2 file-Import failed</p>"
+                                        },
+                                        "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Group chat')}"
+                                    }
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Notification_-_Unknown_Error": {
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "host": {
+                                                "connection": {
+                                                    "referenceName": "teams"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "body": {
+                                                "recipient": "19:515169421c1f44bb82e8af9322128bfc@thread.v2",
+                                                "messageBody": "<p class=\"editor-paragraph\">Smoketest: Release process failed, current import status is @{body('HTTP_-_Get_Import_Status_After_Import')}</p>"
+                                            },
+                                            "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Group chat')}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 },
                 "runAfter": {
-                    "HTTP_-_Get_Import_Status_After_Import": [
+                    "Until": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Until": {
+                "type": "Until",
+                "expression": "@equals(body('HTTP_-_Get_Import_Status_After_Import')['status'],'')",
+                "limit": {
+                    "count": 10,
+                    "timeout": "PT1H"
+                },
+                "actions": {
+                    "HTTP_-_Get_Import_Status_After_Import": {
+                        "type": "Http",
+                        "inputs": {
+                            "uri": "@outputs('HTTP_-_Initialize_new_import_job')?['headers']?['Location']",
+                            "method": "GET"
+                        },
+                        "runtimeConfiguration": {
+                            "contentTransfer": {
+                                "transferMode": "Chunked"
+                            }
+                        }
+                    },
+                    "Delay": {
+                        "type": "Wait",
+                        "inputs": {
+                            "interval": {
+                                "count": 1,
+                                "unit": "Minute"
+                            }
+                        },
+                        "runAfter": {
+                            "HTTP_-_Get_Import_Status_After_Import": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Notification_-_import_test_message": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Notification_-_import_test_message": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "teams"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "recipient": "19:515169421c1f44bb82e8af9322128bfc@thread.v2",
+                        "messageBody": "<p class=\"editor-paragraph\">Smoketest : Rf2 imported</p>"
+                    },
+                    "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Group chat')}"
+                },
+                "runAfter": {
+                    "Condition": [
                         "SUCCEEDED"
                     ]
                 }
