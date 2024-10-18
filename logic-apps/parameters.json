@@ -10,5 +10,17 @@
   "shortName": {
     "type": "String",
     "value": "SNOMEDCT-NO"
+  },
+  "teams-ConnectionRuntimeUrl": {
+    "type": "String",
+    "value": "@appsetting('teams-ConnectionRuntimeUrl')"
+  },
+  "teams-Authentication": {
+    "type": "Object",
+    "value": {
+      "type": "Raw",
+      "scheme": "Key",
+      "parameter": "@appsetting('teams-connectionKey')"
+    }
   }
 }
