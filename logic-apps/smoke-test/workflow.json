@@ -47,46 +47,12 @@
                 "expression": {
                     "and": [
                         {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['newConseptCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['inactivatedConceptsCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['reacitvatedConceptsCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['changedFsnCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['inactivatedSynonymsCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['newSynonymsForExistingConceptsCount']",
-                                0
-                            ]
-                        },
-                        {
-                            "equals": [
-                                "@body('HTTP_-_DailyBuild_Status')['reactivatedSynonymsCount']",
-                                0
-                            ]
+                            "not": {
+                                "equals": [
+                                    "@body('HTTP_-_DailyBuild_Status')['dependantVersionEffectiveTime']",
+                                    0
+                                ]
+                            }
                         }
                     ]
                 },
@@ -125,7 +91,10 @@
                 "type": "Http",
                 "inputs": {
                     "uri": "@concat(parameters('BaseURL'), '/', parameters('branch'), '/authoring-stats')",
-                    "method": "GET"
+                    "method": "GET",
+                    "headers": {
+                        "Authorization": "Basic ZGV2OmRldg=="
+                    }
                 },
                 "runAfter": {
                     "Check_Dependency_and_DailyBuild": [
@@ -188,6 +157,9 @@
                             "inputs": {
                                 "uri": "@concat(parameters('BaseURL'), '/codesystems/', parameters('shortName'), '/daily-build/rollback')",
                                 "method": "POST",
+                                "headers": {
+                                    "Authorization": "Basic ZGV2OmRldg=="
+                                },
                                 "body": {
                                     "type": "SNAPSHOT",
                                     "branchPath": "MAIN/SNOMEDCT-NO",
@@ -417,7 +389,7 @@
             },
             "Until": {
                 "type": "Until",
-                "expression": "@equals(body('HTTP_-_Get_Import_Status_After_Import')['status'],'')",
+                "expression": "@not(equals(body('HTTP_-_Get_Import_Status_After_Import')['status'],'RUNNING'))",
                 "limit": {
                     "count": 10,
                     "timeout": "PT1H"
@@ -439,8 +411,8 @@
                         "type": "Wait",
                         "inputs": {
                             "interval": {
-                                "count": 1,
-                                "unit": "Minute"
+                                "count": 30,
+                                "unit": "Second"
                             }
                         },
                         "runAfter": {
@@ -467,7 +439,7 @@
                     "method": "post",
                     "body": {
                         "recipient": "19:515169421c1f44bb82e8af9322128bfc@thread.v2",
-                        "messageBody": "<p class=\"editor-paragraph\">Smoketest : Rf2 imported</p>"
+                        "messageBody": "<p class=\"editor-paragraph\">Smoketest : Start Rf2 import</p>"
                     },
                     "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Group chat')}"
                 },
